@@ -1012,7 +1012,17 @@ try {
     const focus = (await state()).focusAction; await current.keyboard.press('ArrowDown');
     check('Warm return restores remote focus', (await state()).focusAction !== focus && (await call('where')).focusCount === 1);
     const clock = await current.locator('#caption .clock').textContent();
-    check('Live 12-hour clock has no AM/PM', /^\s*\d{1,2}:\d{2}\s*$/.test(clock), clock);
+    check('Live 24-hour clock has no AM/PM', /^\s*([01]?\d|2[0-3]):[0-5]\d\s*$/.test(clock), clock);
+  });
+  await run('24-hour clock at fixed times', async () => {
+    const at = time => new Date(`2026-01-15T${time}:00`);
+    await page({}, p => p.clock.setFixedTime(at('00:05')));
+    const shown = async time => {
+      await current.clock.setFixedTime(at(time));
+      await current.evaluate(() => window.dispatchEvent(new Event('focus')));
+      return (await current.locator('#caption .clock').textContent()).trim();
+    };
+    for (const [time, text] of [['00:05', '0:05'], ['09:05', '9:05'], ['12:30', '12:30'], ['13:07', '13:07'], ['23:59', '23:59']]) check('Clock shows ' + text + ' at ' + time, await shown(time) === text, await shown(time));
   });
   await run('Open rotation and browser fallback', async () => {
     await page({ seed: baseline({ mode: 'open' }) }); check('Open mode advances at cold start', (await state()).wallpaper === walls[1].id);
