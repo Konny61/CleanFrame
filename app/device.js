@@ -56,6 +56,18 @@
       api().launchAppControl(control, 'org.tizen.art-app', function () { finish(null); }, function (err) { finish(failure(err)); });
     } catch (err) { finish(failure(err)); }
   }
+  var artInstalled = null;
+  // Only The Frame ships the Art app. Hide Art Mode only on a definite NotFoundError.
+  function hasArt() {
+    if (artInstalled === null) {
+      if (!api() || !api().getAppInfo) artInstalled = true;
+      else {
+        try { artInstalled = !!api().getAppInfo('org.tizen.art-app'); }
+        catch (err) { artInstalled = !(err && err.name === 'NotFoundError'); }
+      }
+    }
+    return artInstalled;
+  }
   function home(done) { launchApp('com.samsung.tv.csfs', done); }
   function settings(done) { launchApp('com.samsung.tv.coba.setting', done); }
   function apps(done) {
@@ -80,5 +92,5 @@
       }, function (err) { finish(failure(err)); });
     } catch (err) { finish(failure(err)); }
   }
-  window.FrameDevice = { launch: launch, launchApp: launchApp, art: art, home: home, settings: settings, apps: apps };
+  window.FrameDevice = { launch: launch, launchApp: launchApp, art: art, hasArt: hasArt, home: home, settings: settings, apps: apps };
 }());

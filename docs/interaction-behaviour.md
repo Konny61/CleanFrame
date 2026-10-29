@@ -54,6 +54,8 @@ Removing the last Home app or adding a tenth app is prevented. A failed storage 
 
 ## Art Mode and Samsung screens
 
+Art Mode appears only when the TV has `org.tizen.art-app`. A TV that reports it as not installed (NotFoundError), such as a QLED without Art Mode, shows only All apps and Settings; navigation starts at All apps. Any other lookup error keeps Art Mode.
+
 Art Mode sends an application control to the installed `org.tizen.art-app`, with `mode=fullscreen` and `requester=mobile`. This aims to enter native Art Mode with its current artwork, without toggling power or changing the selected artwork.
 
 This mode comes from [research on Samsung's Art app](https://github.com/TheFab21/ha-samsungtv-smart/blob/master/notes/QN55LS03FAFXZA/ART_MODE_DECOMPILED.md), on another Tizen 9 Frame model. It is an internal Samsung contract, not a documented public Art API. Its visible behaviour on this exact firmware must be confirmed on the TV.

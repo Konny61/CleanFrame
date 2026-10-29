@@ -1,6 +1,6 @@
 # TV compatibility evidence
 
-Updated 28 October 2026. App rendering and native Home reassignment need separate evidence. Tizen version alone does not establish support. The source manifest requires Tizen 6.5; older adapted builds do not change that requirement.
+Updated 28 October 2026. App rendering and native Home reassignment need separate evidence. Tizen version alone does not establish support. The upstream source manifest requires Tizen 6.5 (the `q60r-tizen5` branch of this fork declares 5.0 for an untested Q60R); older adapted builds do not change that requirement.
 
 ## Recorded results
 

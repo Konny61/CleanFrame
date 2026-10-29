@@ -421,6 +421,27 @@ try {
     await scene('home'); await act('home.app.netflix'); await current.waitForFunction(() => ShoreQA.where().view === 'message');
     check('Launch failure is shown', /could not|unavailable|try again/i.test(await current.locator('#stage').innerText()));
   });
+  await run('Art Mode follows the installed Art app', async () => {
+    const artApp = installed => p => p.addInitScript(present => {
+      window.tizen.application.getAppInfo = id => { if (id === 'org.tizen.art-app' && !present) throw Object.assign(new Error('Not installed'), { name: 'NotFoundError' }); return { id }; };
+    }, installed);
+    const utilActions = async () => (await call('actions')).filter(a => a.startsWith('util.'));
+    await page({}, artApp(true));
+    check('Frame with the Art app keeps three controls', same(await utilActions(), ['util.art', 'util.apps', 'util.settings']), await utilActions());
+    await closePage();
+    for (const [layout, out, next] of [['dock', 'ArrowUp', 'ArrowRight'], ['list', 'ArrowRight', 'ArrowDown']]) {
+      await page({ seed: baseline({ theme: layout === 'list' ? 'list' : 'shore' }) }, artApp(false));
+      check(layout + ': TV without the Art app shows All apps and Settings only', same(await utilActions(), ['util.apps', 'util.settings']), await utilActions());
+      await current.keyboard.press(out);
+      check(layout + ': controls start at All apps', (await call('where')).focusAction === 'util.apps', await call('where'));
+      await current.keyboard.press(next); await current.keyboard.press(next);
+      check(layout + ': controls stop at Settings', (await call('where')).focusAction === 'util.settings' && (await call('where')).focusCount === 1, await call('where'));
+      await current.keyboard.press('Enter');
+      check(layout + ': OK opens Settings', (await call('where')).view === 'settings');
+      check(layout + ': no Art Mode call is made', (await current.evaluate(() => __tv.calls)).every(c => c.id !== 'org.tizen.art-app'));
+      await closePage();
+    }
+  });
   await run('Independent app identity self-filter', async () => {
     const appId = 'AbCdEf1234.MyHome';
     await page({ currentAppId: appId, catalog: CATALOG.filter(a => a.id !== 'nClrkHome1.FrameHome').concat({ id: appId, name: 'Family Home', show: true }) });

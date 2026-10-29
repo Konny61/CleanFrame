@@ -491,7 +491,7 @@
   }
 
   /* ---------- Navigation targets ---------- */
-  function utils() { return ['art', 'apps', 'settings']; }
+  function utils() { return FrameDevice.hasArt() ? ['art', 'apps', 'settings'] : ['apps', 'settings']; }
   /* prev/next run along the apps; out goes to the controls, inn comes back (or to a per-app action). */
   function axes() {
     var v = S.c.layout === 'list';
@@ -1302,7 +1302,8 @@
   function fieldTransform(el, x, y, width, height) {
     el._placement = { x: x, y: y, width: width, height: height };
     el.style.transformOrigin = (x + width / 2) + 'px ' + (y + height / 2) + 'px';
-    el.style.transform = 'translate3d(' + (-x) + 'px,' + (-y) + 'px,0)' + (S.c.bg === 'photo' && S.c.material === 'tint' && !REDUCED_MOTION ? ' scale(1.04)' : '');
+    // A 2D translate keeps the field in its parent's layer; on Chromium 63 a 3D transform escapes the rounded clip.
+    el.style.transform = 'translate(' + (-x) + 'px,' + (-y) + 'px)' + (S.c.bg === 'photo' && S.c.material === 'tint' && !REDUCED_MOTION ? ' scale(1.04)' : '');
   }
   function renderList(hs) {
     var items = hs.items, n = items.length, compact = hs.mode === 'arrange', pitch = compact ? PH_COMPACT_PITCH : PH_PITCH;
